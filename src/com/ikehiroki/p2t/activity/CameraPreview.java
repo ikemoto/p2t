@@ -39,19 +39,6 @@ public class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
         }
     }
      
-    public void switchCamera(Camera camera) { 
-        setCamera(camera);
-        try {     
-            camera.setPreviewDisplay(mHolder);
-        } catch (IOException exception) {
-            Log.e(TAG, "IOException caused by setPreviewDisplay()", exception);
-        }
-        Camera.Parameters parameters = camera.getParameters();
-        parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-        requestLayout(); 
-        camera.setParameters(parameters);
-    }
-     
     public void surfaceCreated(SurfaceHolder holder) {
         try {
             if (mCamera != null) {
@@ -76,69 +63,12 @@ public class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
          mCamera.setParameters(parameters);
          mCamera.startPreview();
     }
+
+	@Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		// TODO 自動生成されたメソッド・スタブ
+		
+	}
      
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) { 
-        final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-        final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-        setMeasuredDimension(width, height);
-        if (mSupportedPreviewSizes != null) {
-            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
-        }       
-    }
-     
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-         if (changed && getChildCount() > 0) {
-             final View child = getChildAt(0);
-             final int width = r - l; 
-             final int height = b - t;  
-             int previewWidth = width;
-             int previewHeight = height;
-             if (mPreviewSize != null) { 
-                 previewWidth = mPreviewSize.width;
-                 previewHeight = mPreviewSize.height; 
-        }
-        // Center the child SurfaceView within the parent.
-        if (width * previewHeight > height * previewWidth) {
-            final int scaledChildWidth = previewWidth * height / previewHeight;
-            child.layout((width - scaledChildWidth) / 2, 0,
-                    (width + scaledChildWidth) / 2, height);
-            } else {
-                final int scaledChildHeight = previewHeight * width / previewWidth;
-                child.layout(0, (height - scaledChildHeight) / 2,
-                        width, (height + scaledChildHeight) / 2); 
-            }
-        } 
-    }
-     
-    private Size getOptimalPreviewSize(List<Size> sizes, int w, int h) {   
-        final double ASPECT_TOLERANCE = 0.1;
-        double targetRatio = (double) w / h;
-        if (sizes == null) return null;
-        Size optimalSize = null;
-        double minDiff = Double.MAX_VALUE;
-        int targetHeight = h;
- 
-        for (Size size : sizes) {
-            double ratio = (double) size.width / size.height;
-            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
-            if (Math.abs(size.height - targetHeight) < minDiff) {
-                optimalSize = size;
-                minDiff = Math.abs(size.height - targetHeight); 
-            }
-        }
-        if (optimalSize == null) {
-            minDiff = Double.MAX_VALUE; 
-            for (Size size : sizes) {    
-                if (Math.abs(size.height - targetHeight) < minDiff) { 
-                    optimalSize = size;
-                    minDiff = Math.abs(size.height - targetHeight);
-                }
-            }
-        }
-        return optimalSize;
-    }
-	
 
 }
